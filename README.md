@@ -17,11 +17,7 @@ http://griddler.elva.org
     <link rel="stylesheet" type="text/css" href="griddler.css" />
 </head>
 <body>
-    <!-- Define a books grid container. -->
     <div id="book-list"></div>
-
-    <!-- You can have multiple grids on the same page. -->
-    <div id="another-griddler"></div>
 
     <script src="griddler.js"></script>
     <script>
