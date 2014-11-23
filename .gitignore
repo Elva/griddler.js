@@ -1,0 +1,12 @@
+# OS X
+\~*
+*~
+*.lock
+*.DS_Store
+*.swp
+*.out
+
+
+# Node.Js
+node_modules
+griddler.jquery.js

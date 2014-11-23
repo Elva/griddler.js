@@ -1,0 +1,208 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+body {
+    color: #181818;
+    font-family: 'Myriad Pro', sans-serif;
+    font-size: 13px;
+}
+a {
+    color: #fed07a;
+    text-decoration: none;
+}
+a:hover {
+    color: #ffbf41;
+    text-decoration: underline;
+}
+
+
+.github-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 9999;
+    display: block;
+    overflow: hidden;
+    width: 230px;
+    height: 230px;
+}
+
+.github-button a {
+    display: block;
+    position: absolute;
+    top: 48px;
+    right: -50px;
+    width: 100%;
+    
+    padding: 15px 0 14px;
+    background: #181818;
+    color: #fff;
+
+    font-size: 13px;
+    line-height: 0;
+    text-decoration: none;
+    font-weight: bold;
+    text-align: center;
+
+    -webkit-box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+       -moz-box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+
+    -webkit-transform: rotate(45deg);
+    -moz-transform:    rotate(45deg);
+    -ms-transform:     rotate(45deg);
+    -o-transform:      rotate(45deg);
+    transform:         rotate(45deg);
+}
+
+
+
+.header {
+    margin: 100px 0 102px;
+    text-align: center;
+}
+.logo {
+    margin-bottom: 40px;
+}
+.tagline {
+    font-size: 20px;
+    font-weight: 200;
+
+}
+
+
+
+/* Clearfix */
+.cf:before,
+.cf:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+.cf:after {
+    clear: both;
+}
+.cf {
+    *zoom: 1;
+}
+
+
+
+
+/* Code Sections */
+pre.no-color {
+    color: #777;
+}
+pre, code {
+    background: none;
+    border: none;
+    border-radius: 0;
+}
+pre {
+    margin-bottom: 30px;
+    font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 13px;
+    padding: 0 0 4px 20px;
+}
+pre .string {
+    color: #df5000;
+}
+p code {
+    background: #f0f0f0;
+    font-family: monospace;
+    padding: 2px;
+}
+
+
+
+
+/* Columns */
+.columns {
+    margin: 0 50px;
+}
+.columns > div {
+    float: left;
+    width: 32%;
+}
+.columns .column-b,
+.columns .column-c {
+    margin-left: 2%;
+}
+
+.columns pre {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 18px 10px 18px 20px;
+    border-top: 5px solid #00b7dd;
+    background: #f1fbfd;
+}
+.column-b pre {
+    border-color: #febe41;
+    background: #fefaf3;
+}
+.column-c pre {
+    border-color: #ff6327;
+    background: #fff6f3;
+}
+
+.columns .griddler-container {
+    margin-top: 30px;
+    font-family: sans-serif;
+}
+.columns .griddler-table {
+    width: 100%;
+}
+.columns .gth {
+    border: 1px solid #181818;
+    background-color: #00b6da;
+    color: #fff;
+    padding: 10px 10px;
+}
+.columns .gtd {
+    border: 1px solid #dcdcdc;
+    padding: 12px 10px;
+}
+
+
+
+
+
+h4 {
+    margin: 100px 50px 10px;
+    padding-top: 8px;
+    border-top: 5px solid #181818;
+    font-size: 20px;
+    text-align: center;
+}
+.another-griddler {
+    margin: 0 50px;
+    font-family: sans-serif;
+}
+.another-griddler .griddler-table {
+    width: 100%;
+}
+.another-griddler .gth {
+    border: 1px solid #181818;
+    background-color: #00bb71;
+    color: #fff;
+    padding: 10px 10px;
+}
+.another-griddler .gtd {
+    border: 1px solid #dcdcdc;
+    padding: 12px 10px;
+}
+.another-griddler .gtd-index {
+    width: 30px;
+}
+
+
+
+
+
+.footer {
+    margin: 35px 50px 0;
+    padding: 22px 0 20px;
+    background-color: #00bb71;
+    color: #fff;
+    text-align: center;
+}

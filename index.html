@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>griddler.js | Tiny, grid-based data editor.</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" type="text/css" href="griddler.css" />
+    <link rel="stylesheet" type="text/css" href="/ui/css/github.css" />
+    <link rel="stylesheet" type="text/css" href="/ui/css/style.css" />
+    <script src="/ui/js/rainbow-custom.min.js"></script>
+</head>
+<body>
+
+    <span class="github-button"><a href="https://github.com/coloraggio/griddler.js">Fork me on GitHub</a></span>
+
+
+    <div class="header">
+        <div class="logo">
+            <a href=""><img src="ui/img/griddler-logo.png" /></a>
+        </div>
+        <h2 class="tagline">
+            Tiny, grid-based data editor in ~500 lines<br />
+            of pure Javascript. No jQuery required.
+        </h2>
+    </div>
+
+
+<div class="columns cf">
+
+<div class="column-a">
+<pre><code data-language="html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Book List&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;!-- Define a books grid container. --&gt;
+    &lt;div id=&quot;book-list&quot;&gt;&lt;/div&gt;
+
+    &lt;!-- You can have multiple grids 
+         on the same page. --&gt;
+    &lt;div id=&quot;another-griddler&quot;&gt;&lt;/div&gt;
+
+    &lt;script src=&quot;griddler.js&quot;&gt;&lt;/script&gt;
+    &lt;script&gt;
+        // Griddler starts the show.
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<div id="book-list"></div>
+</div>
+
+<div class="column-b">
+<pre class="g2"><code data-language="js">var griddler = Griddler.create({
+    containerId: 'book-list',
+    columns: [
+        { name: 'bookId', type: 'hidden' },
+        { name: 'title',  th: 'Book' },
+        { name: 'year',   th: 'Year' },
+        { name: 'author', th: 'Author' }
+    ],
+    data: [
+        { 
+            bookId: 7,
+            title: 'On the Road',
+            year: 1957,
+            author: 'Jack Kerouac'
+        },
+        { 
+            bookId: 8,
+            title: 'Fight Club',
+            year: 1999,
+            author: 'Chuck Palahniuk'
+        },
+        { 
+            bookId: 9,
+            title: 'The Dreamers',
+            year: 1988,
+            author: 'Gilbert Adair'
+        }
+    ]
+});</code></pre>
+</div>
+
+<div class="column-c">
+<pre class="g3"><code data-language="js">griddler.on('update', function (rows) {
+    // List of updated rows.
+    console.log(rows);
+});
+
+griddler.on('delete', function (rows) {
+    // List of deleted rows.
+    console.log(rows);
+});
+
+griddler.on('save', function (updatedRows, deletedRows) {
+    // Lists of updated and deleted rows.
+    console.log(updatedRows, deletedRows);
+});</code></pre>
+</div>
+
+</div>
+<!-- /columns -->
+
+
+    <h4>Advanced Example with 1000 Rows</h4>    
+    <div id="another-griddler" class="another-griddler"></div>
+
+
+    <div class="footer">
+        Designed and built by <a href="http://github.com/coloraggio">Lasha Tavartkiladze</a> at <a href="http://elva.org" target="_blank">Elva</a> <br />
+        Licensed under the MIT License.
+    </div>
+
+
+    <script src="griddler.js"></script>
+    <script>
+
+        //
+        // Simple Example
+        //
+        var books = Griddler.create({
+            containerId: 'book-list',
+            columns: [
+                { name: 'bookId', type: 'hidden' },
+                { name: 'title',  th: 'Book' },
+                { name: 'year',   th: 'Year' },
+                { name: 'author', th: 'Author' }
+            ],
+            data: [
+                { 
+                    bookId: 7,
+                    title: 'On the Road',
+                    year: 1957,
+                    author: 'Jack Kerouac'
+                },
+                { 
+                    bookId: 8,
+                    title: 'Fight Club',
+                    year: 1999,
+                    author: 'Chuck Palahniuk'
+                },
+                { 
+                    bookId: 9,
+                    title: 'The Dreamers',
+                    year: 1988,
+                    author: 'Gilbert Adair'
+                }
+            ]
+        });
+
+        //
+        // Advanced Example
+        //
+        var data = [];
+
+        for (var i = 0; i < 250; i += 1) {
+            data.push({ 
+                itemId: (i + 1),
+                date: '2014-10-05',
+                firstname: 'Steve',
+                lastname: 'Fassbenderg',
+                gender: 'Male',
+                age: '21',
+                height: 6.9,
+                profession: 'Actor',
+                married: 'No',
+                city: 'Adelaide'
+            });
+            data.push({ 
+                itemId: (i + 1),
+                date: '2014-11-25',
+                firstname: 'Emma',
+                lastname: 'Tarantino',
+                gender: 'Female',
+                age: '32',
+                height: 5.8,
+                profession: 'Stylist',
+                married: 'No',
+                city: 'Sydney'
+            });
+            data.push({ 
+                itemId: (i + 1),
+                date: '2014-12-18',
+                firstname: 'Quentin',
+                lastname: 'Gosling',
+                gender: 'Male',
+                age: '27',
+                height: 6.2,
+                profession: 'Director',
+                married: 'No',
+                city: 'Melbourne'
+            });
+            data.push({ 
+                itemId: (i + 1),
+                date: '2014-12-31',
+                firstname: 'Lucy',
+                lastname: 'Mulligan',
+                gender: 'Female',
+                age: '19',
+                height: 5.5,
+                profession: 'Model',
+                married: 'No',
+                city: 'Toronto'
+            });
+        }
+
+        Griddler.create({
+            containerId: 'another-griddler',
+            containerCssClass: 'another-griddler',
+            columns: [
+                {
+                    name: 'itemId',
+                    type: 'hidden'
+                },
+                {
+                    name: 'date',
+                    th: 'Registration Date',
+                    type: 'date'
+                },
+                {
+                    name: 'firstname',
+                    th: 'First Name'
+                },
+                {
+                    name: 'lastname',
+                    th: 'Last Name'
+                },
+                {
+                    name: 'gender',
+                    th: 'Gender',
+                    values: ['Male', 'Female']
+                },
+                {
+                    name: 'age',
+                    th: 'Age',
+                    values: ['0-20', '21-40', '41-60', '60+']
+                },
+                {
+                    name: 'height',
+                    th: 'Height (in)'
+                },
+                {
+                    name: 'profession',
+                    th: 'Profession'
+                },
+                {
+                    name: 'married',
+                    th: 'Married',
+                    values: ['Yes', 'No']
+                },
+                {
+                    name: 'city',
+                    th: 'City',
+                    values: ['Auckland', 'Perth', 'Helsinki', 'Sydney', 'Adelaide', 'Calgary', 'Toronto', 'Vancouver', 'Paris', 'London', 'Melbourne']
+                },
+            ],
+            data: data
+        });
+
+    </script>
+</body>
+</html>

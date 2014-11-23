@@ -1,0 +1,18 @@
+/* Core styles */
+
+.gtd-hidden,
+.gtr-delete-button,
+.gtr-deleted {
+    display: none;
+}
+.griddler-table {
+    border-collapse: collapse;
+}
+.gth, .gtd {
+    text-align: left;
+    vertical-align: top;
+    cursor: default;
+}
+.gtd-selected {
+    background-color: #e0fec8;
+}
