@@ -1,8 +1,8 @@
 griddler.js
 ======
 
-Tiny, grid-based data editor in ~500 lines   
-of pure Javascript. No jQuery required.
+Tiny, grid-based data editor in ~500 lines of pure Javascript.   
+No jQuery required.  
 http://griddler.elva.org
 
 <p>&nbsp;</p>
@@ -14,13 +14,13 @@ http://griddler.elva.org
 <html>
 <head>
     <title>Book List</title>
+    <link rel="stylesheet" type="text/css" href="griddler.css" />
 </head>
 <body>
     <!-- Define a books grid container. -->
     <div id="book-list"></div>
 
-    <!-- You can have multiple grids 
-         on the same page. -->
+    <!-- You can have multiple grids on the same page. -->
     <div id="another-griddler"></div>
 
     <script src="griddler.js"></script>
