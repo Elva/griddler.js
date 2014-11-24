@@ -204,7 +204,7 @@ griddler.on('save', function (updatedRows, deletedRows) {
             });
         }
 
-        Griddler.create({
+        var griddler = Griddler.create({
             containerId: 'another-griddler',
             containerCssClass: 'another-griddler',
             columns: [
@@ -255,6 +255,19 @@ griddler.on('save', function (updatedRows, deletedRows) {
                 },
             ],
             data: data
+        });
+
+
+        books.on('update', function (rows) {
+            console.log(rows);
+        });
+
+        books.on('delete', function (rows) {
+            console.log(rows);
+        });
+
+        books.on('save', function (updatedRows, deletedRows) {
+            console.log(updatedRows, deletedRows);
         });
 
     </script>

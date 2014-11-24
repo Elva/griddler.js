@@ -15,6 +15,7 @@
 
         var g = {
             containerEl: document.getElementById(options.containerId || 'griddler-container'),
+            buttonEl:    document.getElementById(options.buttonId || 'griddler-button'),
             tableEl:     document.createElement('table'),
             columns:     options.columns,
             data:        options.data || []
@@ -25,7 +26,8 @@
         g.tableEl.appendChild(createTableRows(g.columns, g.data));
 
         eventify(g);
-        setEventhandlers(g.tableEl);
+        historify(g);
+        setEventhandlers(g);
 
         g.containerEl.setAttribute('class', options.containerCssClass || 'griddler-container');
         g.containerEl.appendChild(g.tableEl);
@@ -43,11 +45,16 @@
     //
     // Set event handlers on the Griddler table.
     //
-    function setEventhandlers(tableEl) {
-        // setDataCellEvents(tableEl);
-        setCellSelectionEvents(tableEl);
-        // setKeyboardEvents(tableEl);
+    function setEventhandlers(self) {
+        setCellEditingEvents(self);
+        setCellSelectionEvents(self);
     }
+
+    //
+    // Reference to a currently active Griddler instance,
+    // in case there's more than one table on a page.
+    //
+    var activeInstance;
 
 
 
@@ -230,7 +237,7 @@
     function createDataCell(name, value, rowIndex, cellIndex) {
         var td = document.createElement('td');
 
-        td.setAttribute('class', 'gtd gtd-visible gtr-' + rowIndex + ' gtd-' + cellIndex);
+        td.setAttribute('class', 'gtd gtd-visible gtd-' + cellIndex + ' gtr-' + rowIndex + '-gtd-' + cellIndex);
         td.setAttribute('data-row', rowIndex);
         td.setAttribute('data-cell', cellIndex);
         td.setAttribute('data-name', name);
@@ -249,60 +256,35 @@
     //
     // SELECTION
     //
-    var selection = {
-        selecting: false,
-        startRow:  0,
-        startCell: 0,
-        endRow:    0,
-        endCell:   0
-    };
 
 
     //
     // Set selection events.
     //
-    function setCellSelectionEvents(tableEl) {
-        disableSelectionOnHeaderAndIndexCells(tableEl);
-        
-        tableEl._cells = tableEl._cells || tableEl.getElementsByClassName('gtd-visible');
+    function setCellSelectionEvents(self) {
+        disableDefaultSelection(self);
 
-        var length = tableEl._cells.length;
-        var i;
-        var cell;
+        var selection = self.selection = createSelectionObject();
+        var cells     = self.cells = self.cells || self.tableEl.getElementsByClassName('gtd-visible');
 
-        for (i = 0; i < length; i += 1) {
-            cell = tableEl._cells[i];
+        addEventListener(cells, 'mousedown', function (e) {
+            selection.selecting = true;
+            activeInstance = self;
 
-            cell.addEventListener('mousedown', function (e) {
-                var td = this;
+            selection.startRow  = selection.endRow  = parseInt(this.getAttribute('data-row'),  10);
+            selection.startCell = selection.endCell = parseInt(this.getAttribute('data-cell'), 10);
 
-                console.log(this);
+            selectCells(self);
+        });
 
-                // Disbale browser's default selection.
-                e.preventDefault();
+        addEventListener(cells, 'mouseover', function (e) {
+            if (selection.selecting) {     
+                selection.endRow  = parseInt(this.getAttribute('data-row'), 10);
+                selection.endCell = parseInt(this.getAttribute('data-cell'), 10);
 
-                // Start the selection.
-                selection.selecting = true;
-
-                // Set row/cell index values.
-                selection.startRow  = selection.endRow  = parseInt(td.getAttribute('data-row'),  10);
-                selection.startCell = selection.endCell = parseInt(td.getAttribute('data-cell'), 10);
-
-                selectCells(tableEl, selection);
-            });
-
-            cell.addEventListener('mouseover', function (e) {
-                // Handle mousover only if user is selecting cells.
-                if (selection.selecting) {
-                    var td = this;
-     
-                    selection.endRow  = parseInt(td.getAttribute('data-row'), 10);
-                    selection.endCell = parseInt(td.getAttribute('data-cell'), 10);
-
-                    selectCells(tableEl, selection);
-                }
-            });
-        }
+                selectCells(self);
+            }
+        });
 
         // Finish selection on mouseup event.
         document.addEventListener('mouseup', function (e) {
@@ -311,23 +293,37 @@
     }
 
     //
-    // Disable selection on <th> elements and on index <td> elements
+    // Create a selection object with optional values or empty otherwise.
     //
-    function disableSelectionOnHeaderAndIndexCells(tableEl) {
-        var headerCells = tableEl.getElementsByClassName('gth');
-        var indexCells  = tableEl.getElementsByClassName('gtd-index');
-        var i;
+    function createSelectionObject(values) {
+        values = values || {};
 
-        function preventMousedown(e) {
+        return {
+            selecting: false,
+            startRow:  values.startRow  || 0,
+            startCell: values.startCell || 0,
+            endRow:    values.endRow    || 0,
+            endCell:   values.endCell   || 0
+        };
+    }
+
+    //
+    // Disable browser's default selection on each <th> and <td>
+    //
+    function disableDefaultSelection(self) {
+        var headerCells = self.tableEl.getElementsByClassName('gth');
+        var dataCells   = self.tableEl.getElementsByClassName('gtd');
+
+        addEventListener(headerCells, 'mousedown', preventDefaultAction);
+        addEventListener(dataCells, 'mousedown', preventDefaultAction);
+    }
+
+    //
+    // Single reference on a preventDefault() function.
+    //
+    function preventDefaultAction(e) {
+        if (!this.getAttribute('contenteditable')) {
             e.preventDefault();
-        }
-
-        for (i = 0; i < headerCells.length; i += 1) {
-            headerCells[i].addEventListener('mousedown', preventMousedown);
-        }
-
-        for (i = 0; i < indexCells.length; i += 1) {
-            indexCells[i].addEventListener('mousedown', preventMousedown);
         }
     }
 
@@ -335,40 +331,20 @@
     // Figure out which cells are selected based on row/cell index values 
     // and set corresponding CSS class to each.
     //
-    function selectCells(tableEl, selection) {
-        var length = tableEl._cells.length;
-        var i;
-        var cell;
-        var classNames;
+    function selectCells(self) {
+        cssClass(self.cells).remove('gtd-selected');
 
-        for (i = 0; i < length; i += 1) {
-            cell = tableEl._cells[i];
+        var rowIndexes  = orderIndexes(self.selection.startRow, self.selection.endRow);
+        var cellIndexes = orderIndexes(self.selection.startCell, self.selection.endCell);
 
-            if (cell) {
-                classNames = cell.getAttribute('class');
+        var rowIndex;
+        var cellIndex;
+        var cells;
 
-                if (classNames.indexOf('gtd-selected') !== -1) {
-                    cell.setAttribute('class', classNames.replace('gtd-selected', ''));
-                }
-            }
-        }
-
-        var rowIndexes  = orderIndexes(selection.startRow, selection.endRow);
-        var cellIndexes = orderIndexes(selection.startCell, selection.endCell);
-
-        for (var rowIndex = rowIndexes.start; rowIndex <= rowIndexes.end; rowIndex += 1) {
-            for (var cellIndex = cellIndexes.start; cellIndex <= cellIndexes.end; cellIndex += 1) {
-                var cellSelector = '.gtr-' + rowIndex + '.gtd-' + cellIndex;
-                var cells = tableEl.querySelectorAll(cellSelector);
-
-                for (i = 0; i < cells.length; i += 1) {
-                    cell = cells[i];
-                    classNames = cell.getAttribute('class');
-
-                    if (classNames.indexOf('gtd-visible') !== -1) {
-                        cell.setAttribute('class', classNames + ' gtd-selected');
-                    }
-                }
+        for (rowIndex = rowIndexes.start; rowIndex <= rowIndexes.end; rowIndex += 1) {
+            for (cellIndex = cellIndexes.start; cellIndex <= cellIndexes.end; cellIndex += 1) {
+                cells = self.tableEl.getElementsByClassName('gtr-' + rowIndex + '-gtd-' + cellIndex);
+                cssClass(cells).add('gtd-selected');
             }
         }
     }
@@ -393,6 +369,307 @@
 
 
     //
+    // CELL EDITING
+    //
+
+    //
+    // Set edit/update events for each data cell.
+    //
+    function setCellEditingEvents(self) {
+        var cells = self.cells = self.cells || self.tableEl.getElementsByClassName('gtd-visible');
+        var delButtons = self.tableEl.getElementsByClassName('gtr-delete-button');
+
+        function clearOtherCells(currentCell) {
+            var length = cells.length;
+            var i;
+
+            for (i = 0; i < length; i += 1) {
+                if (cells[i] !== currentCell) {
+                    removeCssClass(cells[i], 'gtd-editing');
+                    cells[i].removeAttribute('contenteditable');
+                    cells[i].blur();
+                }
+            }
+        }
+
+        addEventListener(cells, 'click', function (e) {
+            clearOtherCells(this);
+        });
+ 
+        addEventListener(cells, 'dblclick', function (e) {
+            clearOtherCells(this);
+
+            addCssClass(this, 'gtd-editing');
+            this.setAttribute('contenteditable', true);
+            this.focus();
+        });
+ 
+        addEventListener(cells, 'blur', function (e) {
+            removeCssClass(this, 'gtd-editing');
+            this.removeAttribute('contenteditable');
+
+            var attrData = this.getAttribute('data-value');
+            var cellData = this.innerHTML;
+ 
+            if (cellData !== attrData) {
+                // Temporarily assing old data for history entry.
+                this.innerHTML = attrData;
+                self.history.add(self.tableEl.innerHTML);
+
+                // Assign new data and fire the update event.
+                this.setAttribute('data-value', cellData);
+                this.innerHTML = cellData;
+
+                var tr = this.parentNode;
+                addCssClass(tr, 'gtr-updated');
+                self.fire('update', this, [grabRowData(tr)]);
+            }
+        });
+
+        addEventListener(delButtons, 'click', function (e) {
+            if (confirm('Are you sure you want to delete this row?')) {
+                var tr = this.parentNode.parentNode;
+                addCssClass(tr, 'gtr-deleted');
+                self.fire('delete', tr, [grabRowData(tr)]);
+            }
+        });
+
+        if (self.buttonEl) {
+            addEventListener(self.buttonEl, 'click', onSave);
+        }
+    }
+
+    //
+    // Select all key/value pairs from each cell and turn them into an object.
+    //
+    function grabRowData(tr) {
+        var data  = {};
+        var cells = tr.getElementsByClassName('gtd-visible');
+
+        var length = cells.length;
+        var i;
+        var elem;
+        var name;
+
+        for (i = 0; i < length; i += 1) {
+            elem = cells[i];
+            name = elem.getAttribute('data-name');
+
+            if (name) {
+                data[name] = elem.getAttribute('data-value');
+            }
+        }
+ 
+        return data;
+    }
+
+
+
+
+
+
+
+
+    //
+    // COPY/PASTE
+    //
+
+
+    //
+    // Paste cells from source selection to the target selection.
+    // This is a Excel like copy/paste algorithm and it needs REFACTORING!
+    //
+    function copyCellsFromSourceToTarget(self) {
+        var source  = self.copiedSelection;
+        var target  = self.selection;
+
+        // How many times source rows fit in the target rows.
+        var targetRowDiff = Math.abs(target.endRow - target.startRow) + 1;
+        var sourceRowDiff = Math.abs(source.endRow - source.startRow) + 1;
+        var rowDiffNum    = quotient(targetRowDiff, sourceRowDiff);
+
+        // How many times source cells fit in the target cells.
+        var targetCellDiff = Math.abs(target.endCell - target.startCell) + 1;
+        var sourceCellDiff = Math.abs(source.endCell - source.startCell) + 1;
+        var cellDiffNum    = quotient(targetCellDiff, sourceCellDiff);
+
+        // Reorder indexes.
+        var sourceRowIndexes  = orderIndexes(source.startRow, source.endRow);
+        var sourceCellIndexes = orderIndexes(source.startCell, source.endCell);
+        var targetRowIndexes  = orderIndexes(target.startRow, target.endRow);
+        var targetCellIndexes = orderIndexes(target.startCell, target.endCell);
+
+        var sourceRows  = dublicateRange(sourceRowIndexes.start, sourceRowIndexes.end, rowDiffNum);
+        var sourceCells = dublicateRange(sourceCellIndexes.start, sourceCellIndexes.end, cellDiffNum);
+
+        sourceRows.forEach(function (rowIndex) {
+            var cIndex = targetCellIndexes.start;
+
+            sourceCells.forEach(function (cellIndex) {
+                var sourceCell = 'gtr-' + rowIndex + '-gtd-' + cellIndex;
+                var sourceContent = self.tableEl.getElementsByClassName(sourceCell)[0].innerHTML;
+                var targetCell = 'gtr-' + targetRowIndexes.start + '-gtd-' + cIndex;
+                self.tableEl.getElementsByClassName(targetCell)[0].innerHTML = sourceContent;
+
+                cIndex += 1;
+            });
+            targetRowIndexes.start += 1;
+        });
+    }
+
+    //
+    // Crete an array of numbers between provided range and dublicate it "n" times.
+    //
+    // For example: dublicateRange(2, 5, 3)
+    // Will create a range [2, 3, 4, 5] and repeat it 3 times.
+    // => [2, 3, 4, 5, 2, 3, 4, 5, 2, 3, 4, 5]
+    //
+    function dublicateRange(start, end, n) {
+        var nums = [];
+
+        while (n) {
+            n -= 1;
+
+            for (var i = start; i <= end; i += 1) {
+                nums.push(i);
+            }
+        }
+
+        return nums;
+    }
+
+    //
+    // Get a quotient between two numbers.
+    // If it's less then 1, return 1.
+    //
+    function quotient(a, b) {
+        var q = parseInt(a / b, 10);
+        return q && q >= 1 ? q : 1;
+    }
+
+
+
+
+
+
+
+    //
+    // KEYBOARD EVENTS
+    //
+
+
+    //
+    // Set global keyboard event handlers.
+    //
+    // Only way to differentiate on which table the event happend is
+    // to track reference to an active table on a page.
+    // That's what global var activeInstance; is all about.
+    //
+    document.addEventListener('keydown', function (e) {
+        var key = String.fromCharCode(e.which).toLowerCase();
+
+        var isCommandKey = e.metaKey || e.ctrlKey;
+        var isShiftKey   = e.shiftKey;
+
+        if (isCommandKey && isShiftKey && key === 'z') {
+            e.preventDefault();
+            onRedo();
+        }
+        else if (isCommandKey && key === 'z') {
+            e.preventDefault();
+            onUndo();
+        }
+        else if (isCommandKey && key === 'c') {
+            e.preventDefault();
+            onCopy();
+        }
+        else if (isCommandKey && key === 'v') {
+            e.preventDefault();
+            onPaste();
+        }
+        else if (isCommandKey && key === 's') {
+            e.preventDefault();
+            onSave();
+        }
+    });
+
+    //
+    // Copy command.
+    //
+    function onCopy() {
+        var self = activeInstance;
+        self.copiedSelection = createSelectionObject(self.selection);
+    }
+
+    //
+    // Paste command.
+    //
+    function onPaste() {
+        var self = activeInstance;
+        self.history.add(self.tableEl.innerHTML);
+        copyCellsFromSourceToTarget(self);
+    }
+
+    //
+    // Undo command.
+    //
+    function onUndo() {
+        var self = activeInstance;
+        var newState = self.history.undo(self.tableEl.innerHTML);
+
+        if (newState) {
+            self.tableEl.innerHTML = newState;
+            setEventhandlers(self);
+        }
+    }
+
+    //
+    // Redo command.
+    //
+    function onRedo() {
+        var self = activeInstance;
+        var newState = self.history.redo(self.tableEl.innerHTML);
+
+        if (newState) {
+            self.tableEl.innerHTML = newState;
+            setEventhandlers(self);
+        }
+    }
+
+    //
+    // Save command.
+    //
+    function onSave() {
+        var self = activeInstance;
+
+        var updatedRows = self.tableEl.getElementsByClassName('gtr-updated');
+        var deletedRows = self.tableEl.getElementsByClassName('gtr-deleted');
+
+        var dataUpdated = [];
+        var dataDeleted = [];
+
+        var updatedRowsLength = updatedRows.length;
+        var deletedRowsLength = deletedRows.length;
+        var i;
+
+        for (i = 0; i < updatedRowsLength; i += 1) {
+            dataUpdated.push(grabRowData(updatedRows[i]));
+        }
+
+        for (i = 0; i < updatedRowsLength; i += 1) {
+            dataDeleted.push(grabRowData(deletedRows[i]));
+        }
+
+        self.fire('save', self.tableEl, dataUpdated, dataDeleted);
+    }
+
+
+
+
+
+
+
+    //
     // HELPERS
     //
 
@@ -408,35 +685,117 @@
             this._events[eventName].push(callback);
         };
 
-        obj.fire = function (eventName, data, context) {
+        obj.fire = function (eventName, context) {
             var events = this._events[eventName];
-            var length = events.length;
-            var i;
+            var dataArgs = [].slice.call(arguments, 2);
 
-            for (i = 0; i < length; i += 1) {
-                events[i].call(context || this, data);
+            if (events) {
+                var length = events.length;
+                var i;
+
+                for (i = 0; i < length; i += 1) {
+                    events[i].apply(context || this, dataArgs);
+                }
             }
         };
     }
 
     //
-    // Format a string.
+    // Add history (undo/redo) capabilities to an obejct.
     //
-    // str('Hello {0} and {1}', 'Lola', 'Nicole')
-    // => Hello Lola and Nicole
-    //
-    function strFormat(s) {
-        var values = [].slice.call(arguments, 1);
-        var length = values.length;
-        var i;
-        var regex;
+    function historify(obj) {
+        obj.history = {
+            undoList: [],
+            redoList: [],
 
-        for (i = 0; i < length; i += 1) {
-            regex = new RegExp('\\{' + i + '\\}', 'gi');
-            s = s.replace(regex, values[i]);
+            add: function (data) {
+                this.undoList.push(data);
+            },
+            undo: function (current) {
+                if (this.undoList.length > 0) {
+                    this.redoList.push(current);
+                    return this.undoList.pop();
+                }
+            },
+            redo: function (current) {
+                if (this.history.redoList.length > 0) {
+                    this.history.undoList.push(current);
+                    return this.history.redoList.pop();
+                }
+            },
+            clean: function () {
+                this.undoList = [];
+                this.redoList = [];
+            }
+        };
+    }
+
+    //
+    // Add event listener to a list of elements.
+    //
+    function addEventListener(elems, event, callback) {
+        elems = (elems.length !== undefined) ? elems : [elems];
+
+        for (var i = 0, length = elems.length; i < length; i += 1) {
+            elems[i].addEventListener(event, callback);
         }
+    }
 
-        return s;
+    //
+    // Add/Remove CSS class to a list of elements.
+    //
+    function cssClass(elems) {
+        elems = (elems.length !== undefined) ? elems : [elems];
+
+        return {
+            add: function (className) {
+                for (var i = 0, length = elems.length; i < length; i += 1) {
+                    addCssClass(elems[i], className);
+                }
+            },
+            remove: function (className) {
+                for (var i = 0, length = elems.length; i < length; i += 1) {
+                    removeCssClass(elems[i], className);
+                }
+            }
+        };
+    }
+
+    //
+    // Get a current CSS classes for an element.
+    //
+    function getCssClass(elem) {
+        return elem.getAttribute('class').replace(/[\s]+/g, ' ');
+    }
+
+    //
+    // Add a single CSS class to the element.
+    //
+    function addCssClass(elem, className) {
+        if (elem.classList !== undefined) {
+            elem.classList.add(className);
+        } else {
+            var currentClasses = getCssClass(elem);
+
+            if (currentClasses.indexOf(className) === -1) {
+                elem.setAttribute('class', currentClasses + ' ' + classNames);
+            }
+        }
+    }
+
+    //
+    // Remove a single CSS class from elements.
+    //
+    function removeCssClass(elem, className) {
+        if (elem.classList !== undefined) {
+            elem.classList.remove(className);
+        } else {
+            var currentClasses = getCssClass(elem);
+
+            if (currentClasses.indexOf(className) !== -1) {
+                elem.setAttribute('class', currentClasses.replace(className, ''));
+            }
+        }
     }
 
 })();

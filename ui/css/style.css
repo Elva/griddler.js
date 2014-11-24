@@ -82,10 +82,6 @@ a:hover {
 .cf:after {
     clear: both;
 }
-.cf {
-    *zoom: 1;
-}
-
 
 
 
@@ -162,6 +158,15 @@ p code {
     border: 1px solid #dcdcdc;
     padding: 12px 10px;
 }
+.columns .gtd-index {
+    width: 30px;
+}
+.columns .gtd-1 {
+    width: 38%;
+}
+.columns .gtd-2 {
+    width: 50px;
+}
 
 
 
@@ -194,6 +199,20 @@ h4 {
 .another-griddler .gtd-index {
     width: 30px;
 }
+.another-griddler .gtd-1 {
+    width: 110px;
+}
+.another-griddler .gtd-2,
+.another-griddler .gtd-3,
+.another-griddler .gtd-7 {
+    width: 15%;
+}
+.another-griddler .gtd-4,
+.another-griddler .gtd-5,
+.another-griddler .gtd-6,
+.another-griddler .gtd-8 {
+    width: 7%;
+}
 
 
 
@@ -205,4 +224,16 @@ h4 {
     background-color: #00bb71;
     color: #fff;
     text-align: center;
+}
+
+
+
+#griddler-button {
+    display: inline-block;
+    padding: 15px 20px;
+    font-size: 20px;
+    background: #00bb71;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
 }
