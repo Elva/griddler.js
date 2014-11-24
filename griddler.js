@@ -447,7 +447,7 @@
         if (!tr) return;
 
         var data  = {};
-        var cells = tr.getElementsByClassName('gtd-visible');
+        var cells = tr.getElementsByClassName('gtd');
 
         var length = cells.length;
         var i;
