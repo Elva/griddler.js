@@ -444,7 +444,7 @@
     // Select all key/value pairs from each cell and turn them into an object.
     //
     function grabRowData(tr) {
-        if (!tr) return;
+        if (!tr) { return; }
 
         var data  = {};
         var cells = tr.getElementsByClassName('gtd');
@@ -786,7 +786,7 @@
             var currentClasses = getCssClass(elem);
 
             if (currentClasses.indexOf(className) === -1) {
-                elem.setAttribute('class', currentClasses + ' ' + classNames);
+                elem.setAttribute('class', currentClasses + ' ' + className);
             }
         }
     }
