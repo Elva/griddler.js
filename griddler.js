@@ -170,6 +170,7 @@
             row = data[i];
 
             tr = document.createElement('tr');
+            tr.setAttribute('class', 'gtr-' + rowIndex);
             tr.appendChild(createIndexRowCell(rowIndex));
 
             for (j = 0, cellIndex = 1; j < columnsLength; j += 1) {
@@ -443,6 +444,8 @@
     // Select all key/value pairs from each cell and turn them into an object.
     //
     function grabRowData(tr) {
+        if (!tr) return;
+
         var data  = {};
         var cells = tr.getElementsByClassName('gtd-visible');
 
@@ -505,12 +508,15 @@
         sourceRows.forEach(function (rowIndex) {
             var cIndex = targetCellIndexes.start;
 
+            var row = self.tableEl.getElementsByClassName('gtr-' + targetRowIndexes.start);
+            cssClass(row).add('gtr-updated');
+            
             sourceCells.forEach(function (cellIndex) {
                 var sourceCell = 'gtr-' + rowIndex + '-gtd-' + cellIndex;
                 var sourceContent = self.tableEl.getElementsByClassName(sourceCell)[0].innerHTML;
                 var targetCell = 'gtr-' + targetRowIndexes.start + '-gtd-' + cIndex;
                 self.tableEl.getElementsByClassName(targetCell)[0].innerHTML = sourceContent;
-
+                
                 cIndex += 1;
             });
             targetRowIndexes.start += 1;
@@ -640,27 +646,29 @@
     // Save command.
     //
     function onSave() {
-        var self = activeInstance;
+        if (activeInstance) {
+            var self = activeInstance;
 
-        var updatedRows = self.tableEl.getElementsByClassName('gtr-updated');
-        var deletedRows = self.tableEl.getElementsByClassName('gtr-deleted');
+            var updatedRows = self.tableEl.getElementsByClassName('gtr-updated');
+            var deletedRows = self.tableEl.getElementsByClassName('gtr-deleted');
 
-        var dataUpdated = [];
-        var dataDeleted = [];
+            var dataUpdated = [];
+            var dataDeleted = [];
 
-        var updatedRowsLength = updatedRows.length;
-        var deletedRowsLength = deletedRows.length;
-        var i;
+            var updatedRowsLength = updatedRows.length;
+            var deletedRowsLength = deletedRows.length;
+            var i;
 
-        for (i = 0; i < updatedRowsLength; i += 1) {
-            dataUpdated.push(grabRowData(updatedRows[i]));
+            for (i = 0; i < updatedRowsLength; i += 1) {
+                dataUpdated.push(grabRowData(updatedRows[i]));
+            }
+
+            for (i = 0; i < deletedRowsLength; i += 1) {
+                dataDeleted.push(grabRowData(deletedRows[i]));
+            }
+
+            self.fire('save', self.tableEl, dataUpdated, dataDeleted);
         }
-
-        for (i = 0; i < updatedRowsLength; i += 1) {
-            dataDeleted.push(grabRowData(deletedRows[i]));
-        }
-
-        self.fire('save', self.tableEl, dataUpdated, dataDeleted);
     }
 
 

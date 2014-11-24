@@ -36,11 +36,42 @@
     color: #fff;
     visibility: hidden;
     display: block;
+
+    /* Felxbox */
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
     display: flex;
-    justify-content: center;
-    align-content: center;
-    flex-direction: column;
-    text-align: center;
+
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+
+    -webkit-flex-direction: column;
+    -ms-flex-direction:     column;
+    flex-direction:         column;
+
+    -webkit-flex-wrap: nowrap;
+    -ms-flex-wrap:     nowrap;
+    flex-wrap:         nowrap;
+
+    -webkit-box-pack:        center;
+    -moz-box-pack:           center;
+    -webkit-justify-content: center;
+    -ms-flex-pack:           center;
+    justify-content:         center;
+
+    -webkit-align-content: center;
+    -ms-flex-line-pack:    center;
+    align-content:         center;
+    -webkit-box-align:     center;
+    -moz-box-align:        center;
+    -webkit-align-items:   center;
+    -ms-flex-align:        center;
+    align-items:           center;
 }
 .gtd-index:hover .gtr-delete-button {
     visibility: visible;
