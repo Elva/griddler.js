@@ -3,7 +3,7 @@ griddler.js
 
 Tiny, grid-based data editor in ~500 lines of pure Javascript.   
 No jQuery required.  
-http://coloraggio.github.io/griddler.js
+http://griddler.elva.org
 
 <p>&nbsp;</p>
 
