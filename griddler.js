@@ -1,9 +1,15 @@
+/* 
+    griddler
+    Tiny, grid-based data editor.
+
+    Lasha Tavartkiladze
+    2014-11-24
+
+    http://griddler.elva.org
+*/
+
+
 (function () {
-
-    //
-    // GRIDDLER
-    //
-
 
     //
     // Create a Griddler object.
