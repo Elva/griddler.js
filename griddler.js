@@ -4,8 +4,6 @@
 
     Lasha Tavartkiladze
     2014-11-24
-
-    http://griddler.elva.org
 */
 
 

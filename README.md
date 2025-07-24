@@ -4,8 +4,6 @@ Tiny, grid-based data editor in ~500 lines of pure Javascript.
 No jQuery required.  
 https://elva.github.io/griddler.js
 
-<p>&nbsp;</p>
-
 ## Quick Start
 
 ```html
