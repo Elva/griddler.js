@@ -1,9 +1,4 @@
-* * *
-This library is no longer maintained. Use it at your own risk.
-* * *
-
-griddler.js
-======
+# griddler.js
 
 Tiny, grid-based data editor in ~500 lines of pure Javascript.   
 No jQuery required.  
